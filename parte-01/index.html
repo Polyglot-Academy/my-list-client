@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyList - Gerenciador de Tarefas</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Página de Login -->
+    <div id="loginPage" class="page active">
+      <div class="login-container">
+        <div class="login-card">
+          <h1>MyList</h1>
+          <p>Gerencie suas tarefas de forma simples</p>
+
+          <form id="loginForm">
+            <div class="input-group">
+              <input type="email" id="email" placeholder="Email" required />
+            </div>
+            <div class="input-group">
+              <input
+                type="password"
+                id="password"
+                placeholder="Senha"
+                required
+              />
+            </div>
+            <button type="submit" class="btn-primary">Entrar</button>
+          </form>
+
+          <div class="demo-info">
+            <p><strong>Usuário demo:</strong></p>
+            <p>Email: bruno.teste@gmail.com</p>
+            <p>Senha: 123456</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
