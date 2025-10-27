@@ -17,11 +17,9 @@
 
     <script src="scripts/api.js"></script>
     <script>
-      // Check authentication and redirect
       document.addEventListener("DOMContentLoaded", () => {
         const api = window.api;
 
-        // Simulate a brief loading time for better UX
         setTimeout(() => {
           if (api.isAuthenticated()) {
             window.location.href = "app/dashboard.html";

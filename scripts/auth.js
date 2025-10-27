@@ -1,4 +1,3 @@
-// Authentication page logic
 class AuthPage {
   constructor() {
     this.api = window.api;
@@ -6,7 +5,6 @@ class AuthPage {
   }
 
   init() {
-    // Check if already authenticated
     if (this.api.isAuthenticated()) {
       window.location.href = "dashboard.html";
       return;
@@ -16,31 +14,26 @@ class AuthPage {
   }
 
   bindEvents() {
-    // Tab switching
     document.querySelectorAll(".tab-btn").forEach((btn) => {
       btn.addEventListener("click", (e) =>
         this.switchTab(e.target.dataset.tab)
       );
     });
 
-    // Login form
     document
       .getElementById("loginForm")
       .addEventListener("submit", (e) => this.handleLogin(e));
 
-    // Register form
     document
       .getElementById("registerForm")
       .addEventListener("submit", (e) => this.handleRegister(e));
   }
 
   switchTab(tabName) {
-    // Update tab buttons
     document.querySelectorAll(".tab-btn").forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.tab === tabName);
     });
 
-    // Update tab content
     document.querySelectorAll(".tab-content").forEach((content) => {
       content.classList.remove("active");
     });
@@ -89,7 +82,6 @@ class AuthPage {
   }
 }
 
-// Initialize auth page
 document.addEventListener("DOMContentLoaded", () => {
   new AuthPage();
 });
