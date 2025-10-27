@@ -1,149 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyList - Gerenciador de Tarefas</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <!-- Login Page -->
-    <div id="loginPage" class="page active">
-        <div class="login-container">
-            <div class="login-card">
-                <h1>MyList</h1>
-                <p>Gerencie suas tarefas de forma simples</p>
-                
-                <form id="loginForm">
-                    <div class="input-group">
-                        <input type="email" id="email" placeholder="Email" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="password" id="password" placeholder="Senha" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Entrar</button>
-                </form>
-                
-                <div class="demo-info">
-                    <p><strong>Usuário demo:</strong></p>
-                    <p>Email: bruno.teste@gmail.com</p>
-                    <p>Senha: 123456</p>
-                </div>
-            </div>
-        </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyList</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+  </head>
+  <body>
+    <div class="loader-container">
+      <div class="loader-content">
+        <div class="spinner"></div>
+        <p>Carregando...</p>
+      </div>
     </div>
 
-    <!-- Dashboard Page -->
-    <div id="dashboardPage" class="page">
-        <header class="header">
-            <div class="header-content">
-                <h1>MyList</h1>
-                <div class="header-actions">
-                    <span id="userName">Bruno Teste</span>
-                    <button id="logoutBtn" class="btn-secondary">Sair</button>
-                </div>
-            </div>
-        </header>
+    <script src="scripts/api.js"></script>
+    <script>
+      // Check authentication and redirect
+      document.addEventListener("DOMContentLoaded", () => {
+        const api = window.api;
 
-        <main class="main-content">
-            <div class="content-header">
-                <h2>Minhas Tarefas</h2>
-                <div class="actions">
-                    <button id="addCategoryBtn" class="btn-secondary">+ Categoria</button>
-                    <button id="addTaskBtn" class="btn-primary">+ Tarefa</button>
-                </div>
-            </div>
-
-            <div class="filters">
-                <select id="categoryFilter">
-                    <option value="">Todas as categorias</option>
-                </select>
-                <select id="statusFilter">
-                    <option value="">Todos os status</option>
-                    <option value="pendente">Pendente</option>
-                    <option value="concluida">Concluída</option>
-                </select>
-            </div>
-
-            <div class="categories-section">
-                <h3>Categorias</h3>
-                <div id="categoriesList" class="categories-list"></div>
-            </div>
-
-            <div class="tasks-section">
-                <div id="tasksList" class="tasks-list"></div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Task Modal -->
-    <div id="taskModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="taskModalTitle">Nova Tarefa</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <form id="taskForm">
-                <div class="input-group">
-                    <label>Título</label>
-                    <input type="text" id="taskTitle" required>
-                </div>
-                <div class="input-group">
-                    <label>Descrição</label>
-                    <textarea id="taskDescription" rows="3"></textarea>
-                </div>
-                <div class="input-group">
-                    <label>Categoria</label>
-                    <select id="taskCategory" required>
-                        <option value="">Selecione uma categoria</option>
-                    </select>
-                </div>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>Data de Vencimento</label>
-                        <input type="date" id="taskDate">
-                    </div>
-                    <div class="input-group">
-                        <label>Hora</label>
-                        <input type="time" id="taskTime">
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>Status</label>
-                    <select id="taskStatus">
-                        <option value="pendente">Pendente</option>
-                        <option value="concluida">Concluída</option>
-                    </select>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" id="cancelTaskBtn">Cancelar</button>
-                    <button type="submit" class="btn-primary">Salvar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Category Modal -->
-    <div id="categoryModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="categoryModalTitle">Nova Categoria</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <form id="categoryForm">
-                <div class="input-group">
-                    <label>Nome da Categoria</label>
-                    <input type="text" id="categoryName" required>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" id="cancelCategoryBtn">Cancelar</button>
-                    <button type="submit" class="btn-primary">Salvar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script src="api.js"></script>
-    <script src="app.js"></script>
-</body>
+        // Simulate a brief loading time for better UX
+        setTimeout(() => {
+          if (api.isAuthenticated()) {
+            window.location.href = "app/dashboard.html";
+          } else {
+            window.location.href = "app/auth.html";
+          }
+        }, 500);
+      });
+    </script>
+  </body>
 </html>

@@ -105,6 +105,29 @@ class FakeAPI {
     return !!localStorage.getItem("mylist_token")
   }
 
+  async register(userData) {
+    await this.delay()
+    const users = JSON.parse(localStorage.getItem("mylist_users") || "[]")
+
+    // Check if email already exists
+    if (users.find((u) => u.email === userData.email)) {
+      return { success: false, message: "Email já cadastrado" }
+    }
+
+    const newUser = {
+      id: Math.max(...users.map((u) => u.id), 0) + 1,
+      nome: userData.nome,
+      email: userData.email,
+      senha: userData.senha,
+      criadoEm: new Date().toISOString(),
+    }
+
+    users.push(newUser)
+    localStorage.setItem("mylist_users", JSON.stringify(users))
+
+    return { success: true, user: newUser }
+  }
+
   // Categories CRUD
   async getCategories() {
     await this.delay()

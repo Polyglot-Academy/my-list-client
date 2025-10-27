@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyList - Login</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+  </head>
+  <body>
+    <!-- Moved authentication forms to separate auth.html page -->
+    <div class="login-container">
+      <div class="login-card">
+        <h1>MyList</h1>
+        <p>Gerencie suas tarefas de forma simples.</p>
+
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="login">Login</button>
+          <button class="tab-btn" data-tab="register">Cadastro</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginTab" class="tab-content active">
+          <form id="loginForm">
+            <div class="input-group">
+              <input
+                type="email"
+                id="loginEmail"
+                placeholder="Email"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <input
+                type="password"
+                id="loginPassword"
+                placeholder="Senha"
+                required
+              />
+            </div>
+            <button type="submit" class="btn-primary">Entrar</button>
+          </form>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="registerTab" class="tab-content">
+          <form id="registerForm">
+            <div class="input-group">
+              <input
+                type="text"
+                id="registerName"
+                placeholder="Nome completo"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <input
+                type="email"
+                id="registerEmail"
+                placeholder="Email"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <input
+                type="password"
+                id="registerPassword"
+                placeholder="Senha"
+                required
+                minlength="6"
+              />
+            </div>
+            <button type="submit" class="btn-primary">Cadastrar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/api.js"></script>
+    <script src="../scripts/auth.js"></script>
+  </body>
+</html>
