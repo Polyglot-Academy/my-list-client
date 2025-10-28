@@ -1,11 +1,100 @@
 const API_BASE_URL =
   "https://listaterefasapi-aea5etf8aqgrf0cm.brazilsouth-01.azurewebsites.net/api";
 
+const requestHeaders = {
+  mode: "cors",
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+};
+
 class API {
   constructor() {
     this.initializeData();
   }
 
+  isAuthenticated() {
+    return !!localStorage.getItem("mylist_token");
+  }
+
+  async register(userData) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/Usuario`, {
+        ...requestHeaders,
+        method: "POST",
+        body: JSON.stringify({
+          nome: userData.nome,
+          email: userData.email,
+          senha: userData.senha,
+          criadoEm: new Date().toISOString(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || "Erro ao cadastrar usuário",
+        };
+      }
+
+      return { success: true, user: data.user || data };
+    } catch (error) {
+      console.error("Erro ao registrar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
+    }
+  }
+
+  async login(email, password) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/Auth/login`, {
+        ...requestHeaders,
+        method: "POST",
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log("data", data);
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || "Erro ao entrar.",
+        };
+      }
+
+      if (!!data) {
+        const token = data.token;
+        localStorage.setItem("mylist_token", token);
+        localStorage.setItem(
+          "mylist_current_user",
+          JSON.stringify(data.userId)
+        );
+
+        return { success: true, userId: data.userId, token };
+      }
+
+      return { success: true, userId: data.userId || data };
+    } catch (error) {
+      console.error("Erro ao registrar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
+    }
+  }
+
+  async logout() {
+    localStorage.removeItem("mylist_token");
+    localStorage.removeItem("mylist_current_user");
+
+    return { success: true };
+  }
+
+  //IN REVIEW
   initializeData() {
     // Dados iniciais baseados no script SQL
     if (!localStorage.getItem("mylist_users")) {
@@ -84,80 +173,14 @@ class API {
       localStorage.setItem("mylist_tasks", JSON.stringify(tasks));
     }
   }
-
-  // Simula delay de rede
-  async delay(ms = 300) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  // Auth
-  async login(email, password) {
-    await this.delay();
-    const users = JSON.parse(localStorage.getItem("mylist_users") || "[]");
-    const user = users.find((u) => u.email === email && u.senha === password);
-
-    if (user) {
-      const token = "fake_token_" + Date.now();
-      localStorage.setItem("mylist_token", token);
-      localStorage.setItem("mylist_current_user", JSON.stringify(user));
-      return { success: true, user, token };
-    }
-
-    return { success: false, message: "Email ou senha inválidos" };
-  }
-
-  async logout() {
-    await this.delay();
-    localStorage.removeItem("mylist_token");
-    localStorage.removeItem("mylist_current_user");
-    return { success: true };
-  }
-
+  
   getCurrentUser() {
     const user = localStorage.getItem("mylist_current_user");
     return user ? JSON.parse(user) : null;
   }
 
-  isAuthenticated() {
-    return !!localStorage.getItem("mylist_token");
-  }
-
-  async register(userData) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/Usuario`, {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          nome: userData.nome,
-          email: userData.email,
-          senha: userData.senha,
-          criadoEm: new Date().toISOString(),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return {
-          success: false,
-          message: data.message || "Erro ao cadastrar usuário",
-        };
-      }
-
-      return { success: true, user: data.user || data };
-    } catch (error) {
-      console.error("Erro ao registrar:", error);
-      return { success: false, message: "Erro ao conectar com o servidor" };
-    }
-  }
-
   // Categories CRUD
   async getCategories() {
-    await this.delay();
     const categories = JSON.parse(
       localStorage.getItem("mylist_categories") || "[]"
     );
@@ -166,7 +189,6 @@ class API {
   }
 
   async createCategory(categoryData) {
-    await this.delay();
     const categories = JSON.parse(
       localStorage.getItem("mylist_categories") || "[]"
     );
@@ -185,7 +207,6 @@ class API {
   }
 
   async updateCategory(id, categoryData) {
-    await this.delay();
     const categories = JSON.parse(
       localStorage.getItem("mylist_categories") || "[]"
     );
@@ -201,7 +222,6 @@ class API {
   }
 
   async deleteCategory(id) {
-    await this.delay();
     const categories = JSON.parse(
       localStorage.getItem("mylist_categories") || "[]"
     );
@@ -224,7 +244,6 @@ class API {
 
   // Tasks CRUD
   async getTasks(filters = {}) {
-    await this.delay();
     const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
     const currentUser = this.getCurrentUser();
     let userTasks = tasks.filter((t) => t.usuario_id === currentUser?.id);
@@ -244,7 +263,6 @@ class API {
   }
 
   async createTask(taskData) {
-    await this.delay();
     const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
     const currentUser = this.getCurrentUser();
 
@@ -268,7 +286,6 @@ class API {
   }
 
   async updateTask(id, taskData) {
-    await this.delay();
     const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
     const index = tasks.findIndex((t) => t.id === id);
 
@@ -288,7 +305,6 @@ class API {
   }
 
   async deleteTask(id) {
-    await this.delay();
     const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
     const filteredTasks = tasks.filter((t) => t.id !== id);
 

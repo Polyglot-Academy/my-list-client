@@ -1,4 +1,3 @@
-// Dashboard page logic
 class DashboardPage {
   constructor() {
     this.api = window.api;
@@ -12,9 +11,8 @@ class DashboardPage {
   }
 
   async init() {
-    // Check authentication
     if (!this.api.isAuthenticated()) {
-      window.location.href = "index.html";
+      window.location.href = "../index.html";
       return;
     }
 
@@ -24,6 +22,7 @@ class DashboardPage {
     this.displayUserName();
   }
 
+  // IN REVIEW
   displayUserName() {
     if (this.currentUser) {
       document.getElementById("userName").textContent = this.currentUser.nome;
@@ -387,7 +386,6 @@ class DashboardPage {
   }
 }
 
-// Initialize dashboard
 document.addEventListener("DOMContentLoaded", () => {
   window.dashboard = new DashboardPage();
 });
