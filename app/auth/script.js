@@ -6,7 +6,7 @@ class AuthPage {
 
   init() {
     if (this.api.isAuthenticated()) {
-      window.location.href = "dashboard.html";
+      window.location.href = "../dashboard/index.html";
       return;
     }
 
@@ -45,17 +45,24 @@ class AuthPage {
 
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
+    const submitButton = e.target.querySelector('button[type="submit"]');
 
     try {
+      window.loading.show();
+      window.loading.disableButton(submitButton);
+
       const result = await this.api.login(email, password);
 
       if (result.success) {
-        window.location.href = "dashboard.html";
+        window.location.href = "../dashboard/index.html";
       } else {
         alert(result.message);
       }
     } catch (error) {
       alert("Erro ao fazer login");
+    } finally {
+      window.loading.hide();
+      window.loading.enableButton(submitButton);
     }
   }
 
@@ -65,8 +72,12 @@ class AuthPage {
     const nome = document.getElementById("registerName").value;
     const email = document.getElementById("registerEmail").value;
     const senha = document.getElementById("registerPassword").value;
+    const submitButton = e.target.querySelector('button[type="submit"]');
 
     try {
+      window.loading.show();
+      window.loading.disableButton(submitButton);
+
       const result = await this.api.register({ nome, email, senha });
 
       if (result.success) {
@@ -78,6 +89,9 @@ class AuthPage {
       }
     } catch (error) {
       alert("Erro ao fazer cadastro");
+    } finally {
+      window.loading.hide();
+      window.loading.enableButton(submitButton);
     }
   }
 }

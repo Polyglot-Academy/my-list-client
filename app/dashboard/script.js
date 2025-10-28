@@ -12,7 +12,7 @@ class DashboardPage {
 
   async init() {
     if (!this.api.isAuthenticated()) {
-      window.location.href = "../index.html";
+      window.location.href = "../auth/index.html";
       return;
     }
 
@@ -86,7 +86,7 @@ class DashboardPage {
   async handleLogout() {
     try {
       await this.api.logout();
-      window.location.href = "index.html";
+      window.location.href = "../auth/index.html";
     } catch (error) {
       alert("Erro ao fazer logout");
     }

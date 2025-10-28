@@ -15,16 +15,16 @@
       </div>
     </div>
 
-    <script src="scripts/api.js"></script>
+    <script src="api/api.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const api = window.api;
 
         setTimeout(() => {
           if (api.isAuthenticated()) {
-            window.location.href = "app/dashboard.html";
+            window.location.href = "app/dashboard/index.html";
           } else {
-            window.location.href = "app/auth.html";
+            window.location.href = "app/auth/index.html";
           }
         }, 500);
       });
