@@ -1,7 +1,8 @@
 class DashboardPage {
   constructor() {
     this.api = window.api;
-    this.currentUser = null;
+
+    this.currentUserId = null;
     this.categories = [];
     this.tasks = [];
     this.editingTask = null;
@@ -16,17 +17,12 @@ class DashboardPage {
       return;
     }
 
-    this.currentUser = this.api.getCurrentUser();
+    this.currentUserId = this.api.getCurrentUserId();
     this.bindEvents();
-    await this.loadData();
-    this.displayUserName();
-  }
 
-  // IN REVIEW
-  displayUserName() {
-    if (this.currentUser) {
-      document.getElementById("userName").textContent = this.currentUser.nome;
-    }
+    await this.loadData();
+
+    // this.displayUserName();
   }
 
   bindEvents() {
@@ -94,14 +90,33 @@ class DashboardPage {
 
   async loadData() {
     try {
-      this.categories = await this.api.getCategories();
-      this.tasks = await this.api.getTasks();
+      window.loading.show();
+      window.loading.disableButton(submitButton);
 
-      this.renderCategories();
-      this.renderTasks();
-      this.updateFilters();
+      const categories = await this.api.getCategories();
+      // this.tasks = await this.api.getTasks();
+      this.categories = categories;
+
+      console.log("categories", categories);
+      // console.log("tasks", this.tasks);
+
+      // this.renderCategories();
+      // this.renderTasks();
+      // this.updateFilters();
+
+
     } catch (error) {
       alert("Erro ao carregar dados");
+    } finally {
+      window.loading.hide();
+      window.loading.enableButton(submitButton);
+    }
+  }
+
+  // IN REVIEW
+  displayUserName() {
+    if (this.currentUserId) {
+      // document.getElementById("userName").textContent = this.currentUser.nome;
     }
   }
 

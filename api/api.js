@@ -10,9 +10,7 @@ const requestHeaders = {
 };
 
 class API {
-  constructor() {
-    this.initializeData();
-  }
+  constructor() {}
 
   isAuthenticated() {
     return !!localStorage.getItem("mylist_token");
@@ -92,99 +90,40 @@ class API {
     return { success: true };
   }
 
-  //IN REVIEW
-  initializeData() {
-    // Dados iniciais baseados no script SQL
-    if (!localStorage.getItem("mylist_users")) {
-      const users = [
-        {
-          id: 1,
-          nome: "Bruno Teste",
-          email: "bruno.teste@gmail.com",
-          senha: "123456", // Em produção seria hash
-          criado_em: new Date().toISOString(),
-        },
-      ];
-      localStorage.setItem("mylist_users", JSON.stringify(users));
-    }
+  getCurrentUserId() {
+    const id = localStorage.getItem("mylist_current_user");
 
-    if (!localStorage.getItem("mylist_categories")) {
-      const categories = [
-        {
-          id: 1,
-          usuario_id: 1,
-          nome: "Trabalho",
-          criado_em: new Date().toISOString(),
-        },
-        {
-          id: 2,
-          usuario_id: 1,
-          nome: "Pessoal",
-          criado_em: new Date().toISOString(),
-        },
-        {
-          id: 3,
-          usuario_id: 1,
-          nome: "Compras",
-          criado_em: new Date().toISOString(),
-        },
-      ];
-      localStorage.setItem("mylist_categories", JSON.stringify(categories));
-    }
-
-    if (!localStorage.getItem("mylist_tasks")) {
-      const tasks = [
-        {
-          id: 1,
-          usuario_id: 1,
-          categoria_id: 1,
-          titulo: "Reunião de projeto",
-          descricao: "Reunião da semana referente ao projeto de semestre.",
-          data_vencimento: "2025-08-26",
-          hora_vencimento: "10:00",
-          status: "pendente",
-          criado_em: new Date().toISOString(),
-        },
-        {
-          id: 2,
-          usuario_id: 1,
-          categoria_id: 2,
-          titulo: "Ler livros",
-          descricao: "Editora Dark Side.",
-          data_vencimento: "2025-08-27",
-          hora_vencimento: "18:30",
-          status: "pendente",
-          criado_em: new Date().toISOString(),
-        },
-        {
-          id: 3,
-          usuario_id: 1,
-          categoria_id: 3,
-          titulo: "Comprar novos Livros",
-          descricao: "Editora Dark Side.",
-          data_vencimento: "2025-08-29",
-          hora_vencimento: "17:20",
-          status: "pendente",
-          criado_em: new Date().toISOString(),
-        },
-      ];
-      localStorage.setItem("mylist_tasks", JSON.stringify(tasks));
-    }
+    return id ? JSON.parse(id) : null;
   }
-  
-  getCurrentUser() {
-    const user = localStorage.getItem("mylist_current_user");
-    return user ? JSON.parse(user) : null;
+
+  //IN REVIEW
+  async getCategories() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/Categoria`, {
+        ...requestHeaders,
+        method: "GET",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || "Erro ao buscar categorias.",
+        };
+      }
+
+      const currentUserId = this.getCurrentUser();
+      const userCategories = data.filter((c) => c.usuarioId === currentUserId);
+
+      return { success: true, categories: userCategories || [] };
+    } catch (error) {
+      console.error("Erro ao buscar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
+    }
   }
 
   // Categories CRUD
-  async getCategories() {
-    const categories = JSON.parse(
-      localStorage.getItem("mylist_categories") || "[]"
-    );
-    const currentUser = this.getCurrentUser();
-    return categories.filter((c) => c.usuario_id === currentUser?.id);
-  }
 
   async createCategory(categoryData) {
     const categories = JSON.parse(
