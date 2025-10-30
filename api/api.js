@@ -124,33 +124,6 @@ class API {
     }
   }
 
-  // Categories
-  async getCategories() {
-    try {
-      const response = await fetch(`${API_BASE_URL}/Categoria`, {
-        ...requestHeaders,
-        method: "GET",
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return {
-          success: false,
-          message: data.message || "Erro ao buscar categorias.",
-        };
-      }
-
-      const currentUserId = this.getCurrentUserId();
-      const userCategories = data.filter((c) => c.usuarioId === currentUserId);
-
-      return { success: true, categories: userCategories || [] };
-    } catch (error) {
-      console.error("Erro ao buscar:", error);
-      return { success: false, message: "Erro ao conectar com o servidor" };
-    }
-  }
-
   // Tasks
   async getTasks() {
     try {
@@ -199,18 +172,16 @@ class API {
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
         return {
           success: false,
-          message: data.message || "Erro ao cadastrar tarefa",
+          message: "Erro ao cadastrar tarefa",
         };
       }
 
       return { success: true };
     } catch (error) {
-      console.error("Erro ao atualizar:", error);
+      console.error("Erro ao cadastrar:", error);
       return { success: false, message: "Erro ao conectar com o servidor" };
     }
   }
@@ -237,12 +208,10 @@ class API {
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
         return {
           success: false,
-          message: data.message || "Erro ao atualizar tarefa",
+          message: "Erro ao atualizar tarefa",
         };
       }
 
@@ -276,39 +245,91 @@ class API {
     }
   }
 
-  //IN REVIEW
+  // Categories
+  async getCategories() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/Categoria`, {
+        ...requestHeaders,
+        method: "GET",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || "Erro ao buscar categorias.",
+        };
+      }
+
+      const currentUserId = this.getCurrentUserId();
+      const userCategories = data.filter((c) => c.usuarioId === currentUserId);
+
+      return { success: true, categories: userCategories || [] };
+    } catch (error) {
+      console.error("Erro ao buscar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
+    }
+  }
+
   async createCategory(categoryData) {
-    const categories = JSON.parse(
-      localStorage.getItem("mylist_categories") || "[]"
-    );
-    const currentUser = this.getCurrentUserId();
+    try {
+      const userId = this.getCurrentUserId();
 
-    const newCategory = {
-      id: Math.max(...categories.map((c) => c.id), 0) + 1,
-      usuario_id: currentUser.id,
-      nome: categoryData.nome,
-      criado_em: new Date().toISOString(),
-    };
+      const response = await fetch(`${API_BASE_URL}/Categoria`, {
+        ...requestHeaders,
+        method: "POST",
+        body: JSON.stringify({
+          usuarioId: userId,
+          nome: categoryData.nome,
+          criadoEm: categoryData.criadoEm,
+        }),
+      });
 
-    categories.push(newCategory);
-    localStorage.setItem("mylist_categories", JSON.stringify(categories));
-    return { success: true, category: newCategory };
+      if (!response.ok) {
+        return {
+          success: false,
+          message: "Erro ao cadastrar categoria",
+        };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Erro ao cadastrar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
+    }
   }
 
   async updateCategory(id, categoryData) {
-    const categories = JSON.parse(
-      localStorage.getItem("mylist_categories") || "[]"
-    );
-    const index = categories.findIndex((c) => c.id === id);
+    try {
+      const userId = this.getCurrentUserId();
 
-    if (index !== -1) {
-      categories[index] = { ...categories[index], ...categoryData };
-      localStorage.setItem("mylist_categories", JSON.stringify(categories));
-      return { success: true, category: categories[index] };
+      const response = await fetch(`${API_BASE_URL}/Categoria/${id}`, {
+        ...requestHeaders,
+        method: "PUT",
+        body: JSON.stringify({
+          id: id,
+          usuarioId: userId,
+          nome: categoryData.nome,
+          criadoEm: categoryData.criadoEm,
+        }),
+      });
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: "Erro ao atualizar categoria",
+        };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Erro ao atualizar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
     }
-
-    return { success: false, message: "Categoria não encontrada" };
   }
+
+  //IN REVIEW
 
   async deleteCategory(id) {
     const categories = JSON.parse(

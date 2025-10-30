@@ -373,9 +373,9 @@ class DashboardPage {
       .join("");
   }
 
-  // IN REVIEW
   showCategoryModal(category = null) {
     this.editingCategory = category;
+
     const modal = document.getElementById("categoryModal");
     const title = document.getElementById("categoryModalTitle");
 
@@ -395,6 +395,14 @@ class DashboardPage {
     this.editingCategory = null;
   }
 
+  async editCategory(id) {
+    const category = this.categories.find((c) => c.id === id);
+
+    if (category) {
+      this.showCategoryModal(category);
+    }
+  }
+
   async handleCategorySubmit(e) {
     e.preventDefault();
 
@@ -403,7 +411,9 @@ class DashboardPage {
     };
 
     try {
-      if (this.editingCategory) {
+      window.loading.show();
+
+      if (!!this.editingCategory) {
         await this.api.updateCategory(this.editingCategory.id, categoryData);
       } else {
         await this.api.createCategory(categoryData);
@@ -413,15 +423,12 @@ class DashboardPage {
       await this.loadData();
     } catch (error) {
       alert("Erro ao salvar categoria");
+    } finally {
+      window.loading.hide();
     }
   }
 
-  async editCategory(id) {
-    const category = this.categories.find((c) => c.id === id);
-    if (category) {
-      this.showCategoryModal(category);
-    }
-  }
+  // IN REVIEW
 
   async deleteCategory(id) {
     if (
