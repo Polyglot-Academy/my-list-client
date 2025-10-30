@@ -178,6 +178,43 @@ class API {
     }
   }
 
+  async createTask(taskData) {
+    try {
+      const userId = this.getCurrentUserId();
+
+      const response = await fetch(`${API_BASE_URL}/Tarefa`, {
+        ...requestHeaders,
+        method: "POST",
+        body: JSON.stringify({
+          usuarioId: userId,
+          categoriaId: taskData.categoriaId
+            ? Number.parseInt(taskData.categoriaId)
+            : null,
+          titulo: taskData.titulo,
+          descricao: taskData.descricao,
+          dataVencimento: taskData.dataVencimento,
+          horaVencimento: taskData.horaVencimento,
+          status: taskData.status,
+          criadoEm: taskData.criadoEm,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || "Erro ao cadastrar tarefa",
+        };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Erro ao atualizar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
+    }
+  }
+
   async updateTask(id, taskData) {
     try {
       const userId = this.getCurrentUserId();
@@ -292,29 +329,6 @@ class API {
     localStorage.setItem("mylist_tasks", JSON.stringify(updatedTasks));
 
     return { success: true };
-  }
-
-  async createTask(taskData) {
-    const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
-    const currentUser = this.getCurrentUserId();
-
-    const newTask = {
-      id: Math.max(...tasks.map((t) => t.id), 0) + 1,
-      usuario_id: currentUser.id,
-      categoria_id: taskData.categoria_id
-        ? Number.parseInt(taskData.categoria_id)
-        : null,
-      titulo: taskData.titulo,
-      descricao: taskData.descricao || "",
-      data_vencimento: taskData.data_vencimento || null,
-      hora_vencimento: taskData.hora_vencimento || null,
-      status: taskData.status || "pendente",
-      criado_em: new Date().toISOString(),
-    };
-
-    tasks.push(newTask);
-    localStorage.setItem("mylist_tasks", JSON.stringify(tasks));
-    return { success: true, task: newTask };
   }
 }
 

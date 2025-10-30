@@ -339,7 +339,7 @@ class DashboardPage {
         window.loading.show();
 
         await this.api.deleteTask(id);
-        
+
         await this.loadData();
       } catch (error) {
         alert("Erro ao excluir tarefa");
