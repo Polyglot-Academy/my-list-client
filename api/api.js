@@ -106,6 +106,7 @@ class API {
 
       const data = await response.json();
 
+
       if (!response.ok) {
         return {
           success: false,
@@ -113,7 +114,7 @@ class API {
         };
       }
 
-      const currentUserId = this.getCurrentUser();
+      const currentUserId = this.getCurrentUserId();
       const userCategories = data.filter((c) => c.usuarioId === currentUserId);
 
       return { success: true, categories: userCategories || [] };
@@ -129,7 +130,7 @@ class API {
     const categories = JSON.parse(
       localStorage.getItem("mylist_categories") || "[]"
     );
-    const currentUser = this.getCurrentUser();
+    const currentUser = this.getCurrentUserId();
 
     const newCategory = {
       id: Math.max(...categories.map((c) => c.id), 0) + 1,
@@ -182,7 +183,7 @@ class API {
   // Tasks CRUD
   async getTasks(filters = {}) {
     const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
-    const currentUser = this.getCurrentUser();
+    const currentUser = this.getCurrentUserId();
     let userTasks = tasks.filter((t) => t.usuario_id === currentUser?.id);
 
     // Apply filters
@@ -201,7 +202,7 @@ class API {
 
   async createTask(taskData) {
     const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
-    const currentUser = this.getCurrentUser();
+    const currentUser = this.getCurrentUserId();
 
     const newTask = {
       id: Math.max(...tasks.map((t) => t.id), 0) + 1,

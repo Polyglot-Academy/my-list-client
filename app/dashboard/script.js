@@ -91,55 +91,29 @@ class DashboardPage {
   async loadData() {
     try {
       window.loading.show();
-      window.loading.disableButton(submitButton);
 
-      const categories = await this.api.getCategories();
+      const response = await this.api.getCategories();
       // this.tasks = await this.api.getTasks();
-      this.categories = categories;
+      this.categories = response.categories;
 
-      console.log("categories", categories);
       // console.log("tasks", this.tasks);
 
-      // this.renderCategories();
+      this.renderCategories();
       // this.renderTasks();
       // this.updateFilters();
-
-
     } catch (error) {
       alert("Erro ao carregar dados");
     } finally {
       window.loading.hide();
-      window.loading.enableButton(submitButton);
     }
-  }
-
-  // IN REVIEW
-  displayUserName() {
-    if (this.currentUserId) {
-      // document.getElementById("userName").textContent = this.currentUser.nome;
-    }
-  }
-
-  updateFilters() {
-    const categoryFilter = document.getElementById("categoryFilter");
-    const taskCategory = document.getElementById("taskCategory");
-
-    categoryFilter.innerHTML = '<option value="">Todas as categorias</option>';
-    taskCategory.innerHTML =
-      '<option value="">Selecione uma categoria</option>';
-
-    this.categories.forEach((category) => {
-      const option1 = new Option(category.nome, category.id);
-      const option2 = new Option(category.nome, category.id);
-      categoryFilter.appendChild(option1);
-      taskCategory.appendChild(option2);
-    });
   }
 
   renderCategories() {
     const container = document.getElementById("categoriesList");
 
-    if (this.categories.length === 0) {
+    console.log("categories", this.categories, this.categories.length);
+
+    if (!this.categories.length > 0) {
       container.innerHTML = "<p>Nenhuma categoria encontrada.</p>";
       return;
     }
@@ -224,6 +198,29 @@ class DashboardPage {
         `;
       })
       .join("");
+  }
+  
+  // IN REVIEW
+  displayUserName() {
+    if (this.currentUserId) {
+      // document.getElementById("userName").textContent = this.currentUser.nome;
+    }
+  }
+
+  updateFilters() {
+    const categoryFilter = document.getElementById("categoryFilter");
+    const taskCategory = document.getElementById("taskCategory");
+
+    categoryFilter.innerHTML = '<option value="">Todas as categorias</option>';
+    taskCategory.innerHTML =
+      '<option value="">Selecione uma categoria</option>';
+
+    this.categories.forEach((category) => {
+      const option1 = new Option(category.nome, category.id);
+      const option2 = new Option(category.nome, category.id);
+      categoryFilter.appendChild(option1);
+      taskCategory.appendChild(option2);
+    });
   }
 
   async applyFilters() {
