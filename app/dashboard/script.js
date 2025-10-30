@@ -92,14 +92,15 @@ class DashboardPage {
     try {
       window.loading.show();
 
-      const response = await this.api.getCategories();
-      // this.tasks = await this.api.getTasks();
-      this.categories = response.categories;
+      const categoryResponse = await this.api.getCategories();
+      const taskResponse = await this.api.getTasks();
+      this.categories = categoryResponse.categories;
+      this.tasks = taskResponse.tasks;
 
-      // console.log("tasks", this.tasks);
+      console.log("tasks", this.tasks);
 
       this.renderCategories();
-      // this.renderTasks();
+      this.renderTasks();
       // this.updateFilters();
     } catch (error) {
       alert("Erro ao carregar dados");
@@ -110,8 +111,6 @@ class DashboardPage {
 
   renderCategories() {
     const container = document.getElementById("categoriesList");
-
-    console.log("categories", this.categories, this.categories.length);
 
     if (!this.categories.length > 0) {
       container.innerHTML = "<p>Nenhuma categoria encontrada.</p>";
@@ -136,7 +135,7 @@ class DashboardPage {
   renderTasks() {
     const container = document.getElementById("tasksList");
 
-    if (this.tasks.length === 0) {
+    if (!this.tasks.length > 0) {
       container.innerHTML = "<p>Nenhuma tarefa encontrada.</p>";
       return;
     }
@@ -144,9 +143,9 @@ class DashboardPage {
     container.innerHTML = this.tasks
       .map((task) => {
         const category = this.categories.find(
-          (c) => c.id === task.categoria_id
+          (c) => c.id === task.categoriaId
         );
-        const isCompleted = task.status === "concluida";
+        const isCompleted = task.status === 1;
 
         return `
           <div class="task-item ${isCompleted ? "completed" : ""}">
@@ -199,7 +198,7 @@ class DashboardPage {
       })
       .join("");
   }
-  
+
   // IN REVIEW
   displayUserName() {
     if (this.currentUserId) {

@@ -96,7 +96,6 @@ class API {
     return id ? JSON.parse(id) : null;
   }
 
-  //IN REVIEW
   async getCategories() {
     try {
       const response = await fetch(`${API_BASE_URL}/Categoria`, {
@@ -105,7 +104,6 @@ class API {
       });
 
       const data = await response.json();
-
 
       if (!response.ok) {
         return {
@@ -124,8 +122,46 @@ class API {
     }
   }
 
-  // Categories CRUD
+  async getTasks(filters = {}) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/Tarefa`, {
+        ...requestHeaders,
+        method: "GET",
+      });
 
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || "Erro ao buscar tarefas.",
+        };
+      }
+
+      const currentUserId = this.getCurrentUserId();
+      const userTasks = data.filter((c) => c.usuarioId === currentUserId);
+
+      // Filtros
+      // if (filters.categoriaId) {
+      //   userTasks = userTasks.filter(
+      //     (t) => t.categoriaId === Number.parseInt(filters.categoriaId)
+      //   );
+      // }
+
+      // if (filters.status) {
+      //   userTasks = userTasks.filter((t) => t.status === filters.status);
+      // }
+
+      return { success: true, tasks: userTasks || [] };
+    } catch (error) {
+      console.error("Erro ao buscar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
+    }
+  }
+
+  //IN REVIEW
+
+  // Categories CRUD
   async createCategory(categoryData) {
     const categories = JSON.parse(
       localStorage.getItem("mylist_categories") || "[]"
@@ -181,24 +217,6 @@ class API {
   }
 
   // Tasks CRUD
-  async getTasks(filters = {}) {
-    const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
-    const currentUser = this.getCurrentUserId();
-    let userTasks = tasks.filter((t) => t.usuario_id === currentUser?.id);
-
-    // Apply filters
-    if (filters.categoria_id) {
-      userTasks = userTasks.filter(
-        (t) => t.categoria_id === Number.parseInt(filters.categoria_id)
-      );
-    }
-
-    if (filters.status) {
-      userTasks = userTasks.filter((t) => t.status === filters.status);
-    }
-
-    return userTasks;
-  }
 
   async createTask(taskData) {
     const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
