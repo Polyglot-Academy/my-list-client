@@ -209,9 +209,32 @@ class API {
         };
       }
 
-      return { success: true, task: data.user || data };
+      return { success: true };
     } catch (error) {
       console.error("Erro ao atualizar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
+    }
+  }
+
+  async deleteTask(id) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/Tarefa/${id}`, {
+        ...requestHeaders,
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || "Erro ao excluir tarefa.",
+        };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Erro ao buscar:", error);
       return { success: false, message: "Erro ao conectar com o servidor" };
     }
   }
@@ -292,14 +315,6 @@ class API {
     tasks.push(newTask);
     localStorage.setItem("mylist_tasks", JSON.stringify(tasks));
     return { success: true, task: newTask };
-  }
-
-  async deleteTask(id) {
-    const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
-    const filteredTasks = tasks.filter((t) => t.id !== id);
-
-    localStorage.setItem("mylist_tasks", JSON.stringify(filteredTasks));
-    return { success: true };
   }
 }
 

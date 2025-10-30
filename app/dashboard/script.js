@@ -1,4 +1,5 @@
 class DashboardPage {
+  //Life Cycle
   constructor() {
     this.api = window.api;
 
@@ -81,15 +82,6 @@ class DashboardPage {
     });
   }
 
-  async handleLogout() {
-    try {
-      await this.api.logout();
-      window.location.href = "../auth/index.html";
-    } catch (error) {
-      alert("Erro ao fazer logout");
-    }
-  }
-
   async loadData() {
     try {
       window.loading.show();
@@ -112,35 +104,56 @@ class DashboardPage {
     }
   }
 
+  // User
   displayUserName() {
     if (!!this.currentUser) {
       document.getElementById("userName").textContent = this.currentUser.nome;
     }
   }
 
-  renderCategories() {
-    const container = document.getElementById("categoriesList");
-
-    if (!this.categories.length > 0) {
-      container.innerHTML = "<p>Nenhuma categoria encontrada.</p>";
-      return;
+  async handleLogout() {
+    try {
+      await this.api.logout();
+      window.location.href = "../auth/index.html";
+    } catch (error) {
+      alert("Erro ao fazer logout");
     }
-
-    container.innerHTML = this.categories
-      .map(
-        (category) => `
-        <div class="category-item">
-          <span>${category.nome}</span>
-          <div class="category-actions">
-            <button onclick="dashboard.editCategory(${category.id})" title="Editar">✏️</button>
-            <button onclick="dashboard.deleteCategory(${category.id})" title="Excluir">🗑️</button>
-          </div>
-        </div>
-      `
-      )
-      .join("");
   }
 
+  //Filters
+  updateFilters() {
+    const categoryFilter = document.getElementById("categoryFilter");
+    const taskCategory = document.getElementById("taskCategory");
+
+    categoryFilter.innerHTML = '<option value="">Todas as categorias</option>';
+    taskCategory.innerHTML =
+      '<option value="">Selecione uma categoria</option>';
+
+    this.categories.forEach((category) => {
+      const option1 = new Option(category.nome, category.id);
+      const option2 = new Option(category.nome, category.id);
+      categoryFilter.appendChild(option1);
+      taskCategory.appendChild(option2);
+    });
+  }
+
+  async applyFilters() {
+    const categoryId = document.getElementById("categoryFilter").value;
+    const status = document.getElementById("statusFilter").value;
+
+    const filters = {};
+
+    if (categoryId) filters.categoriaId = categoryId;
+    if (status) filters.status = status;
+
+    try {
+      this.renderTasks(filters);
+    } catch (error) {
+      alert("Erro ao aplicar filtros");
+    }
+  }
+
+  // Tasks
   renderTasks(filters = {}) {
     const container = document.getElementById("tasksList");
 
@@ -218,38 +231,6 @@ class DashboardPage {
         `;
       })
       .join("");
-  }
-
-  updateFilters() {
-    const categoryFilter = document.getElementById("categoryFilter");
-    const taskCategory = document.getElementById("taskCategory");
-
-    categoryFilter.innerHTML = '<option value="">Todas as categorias</option>';
-    taskCategory.innerHTML =
-      '<option value="">Selecione uma categoria</option>';
-
-    this.categories.forEach((category) => {
-      const option1 = new Option(category.nome, category.id);
-      const option2 = new Option(category.nome, category.id);
-      categoryFilter.appendChild(option1);
-      taskCategory.appendChild(option2);
-    });
-  }
-
-  async applyFilters() {
-    const categoryId = document.getElementById("categoryFilter").value;
-    const status = document.getElementById("statusFilter").value;
-
-    const filters = {};
-
-    if (categoryId) filters.categoriaId = categoryId;
-    if (status) filters.status = status;
-
-    try {
-      this.renderTasks(filters);
-    } catch (error) {
-      alert("Erro ao aplicar filtros");
-    }
   }
 
   showTaskModal(task = null) {
@@ -335,6 +316,8 @@ class DashboardPage {
     };
 
     try {
+      window.loading.show();
+
       if (this.editingTask) {
         await this.api.updateTask(this.editingTask.id, taskData);
       } else {
@@ -345,24 +328,52 @@ class DashboardPage {
       await this.loadData();
     } catch (error) {
       alert("Erro ao salvar tarefa");
+    } finally {
+      window.loading.hide();
     }
   }
 
-  // IN REVIEW
-
-  // Task Modal
   async deleteTask(id) {
     if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
       try {
+        window.loading.show();
+
         await this.api.deleteTask(id);
+        
         await this.loadData();
       } catch (error) {
         alert("Erro ao excluir tarefa");
+      } finally {
+        window.loading.hide();
       }
     }
   }
 
-  // Category Modal
+  //Categories
+  renderCategories() {
+    const container = document.getElementById("categoriesList");
+
+    if (!this.categories.length > 0) {
+      container.innerHTML = "<p>Nenhuma categoria encontrada.</p>";
+      return;
+    }
+
+    container.innerHTML = this.categories
+      .map(
+        (category) => `
+        <div class="category-item">
+          <span>${category.nome}</span>
+          <div class="category-actions">
+            <button onclick="dashboard.editCategory(${category.id})" title="Editar">✏️</button>
+            <button onclick="dashboard.deleteCategory(${category.id})" title="Excluir">🗑️</button>
+          </div>
+        </div>
+      `
+      )
+      .join("");
+  }
+
+  // IN REVIEW
   showCategoryModal(category = null) {
     this.editingCategory = category;
     const modal = document.getElementById("categoryModal");
