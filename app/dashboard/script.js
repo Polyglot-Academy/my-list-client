@@ -3,8 +3,10 @@ class DashboardPage {
     this.api = window.api;
 
     this.currentUserId = null;
+    this.currentUser = null;
     this.categories = [];
     this.tasks = [];
+
     this.editingTask = null;
     this.editingCategory = null;
 
@@ -22,7 +24,7 @@ class DashboardPage {
 
     await this.loadData();
 
-    // this.displayUserName();
+    this.displayUserName();
   }
 
   bindEvents() {
@@ -94,10 +96,11 @@ class DashboardPage {
 
       const categoryResponse = await this.api.getCategories();
       const taskResponse = await this.api.getTasks();
+      const userResponse = await this.api.getUsers();
+
       this.categories = categoryResponse.categories;
       this.tasks = taskResponse.tasks;
-
-      console.log("tasks", this.tasks);
+      this.currentUser = userResponse.user;
 
       this.renderCategories();
       this.renderTasks();
@@ -106,6 +109,12 @@ class DashboardPage {
       alert("Erro ao carregar dados");
     } finally {
       window.loading.hide();
+    }
+  }
+
+  displayUserName() {
+    if (!!this.currentUser) {
+      document.getElementById("userName").textContent = this.currentUser.nome;
     }
   }
 
@@ -142,9 +151,7 @@ class DashboardPage {
 
     container.innerHTML = this.tasks
       .map((task) => {
-        const category = this.categories.find(
-          (c) => c.id === task.categoriaId
-        );
+        const category = this.categories.find((c) => c.id === task.categoriaId);
         const isCompleted = task.status === 1;
 
         return `
@@ -182,13 +189,13 @@ class DashboardPage {
                     : ""
                 }
                 <span class="task-status ${task.status}">${
-          task.status === "pendente" ? "Pendente" : "Concluída"
+          task.status === 0 ? "Pendente" : "Concluída"
         }</span>
               </div>
               ${
-                task.data_vencimento
-                  ? `<span>${this.formatDate(task.data_vencimento)} ${
-                      task.hora_vencimento || ""
+                task.dataVencimento
+                  ? `<span>${this.formatDate(task.dataVencimento)} ${
+                      task.horaVencimento || ""
                     }</span>`
                   : ""
               }
@@ -200,12 +207,6 @@ class DashboardPage {
   }
 
   // IN REVIEW
-  displayUserName() {
-    if (this.currentUserId) {
-      // document.getElementById("userName").textContent = this.currentUser.nome;
-    }
-  }
-
   updateFilters() {
     const categoryFilter = document.getElementById("categoryFilter");
     const taskCategory = document.getElementById("taskCategory");

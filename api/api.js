@@ -96,6 +96,32 @@ class API {
     return id ? JSON.parse(id) : null;
   }
 
+  async getUsers() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/Usuario`, {
+        ...requestHeaders,
+        method: "GET",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || "Erro ao buscar usuario.",
+        };
+      }
+
+      const currentUserId = this.getCurrentUserId();
+      const user = data.filter((c) => c.id === currentUserId)[0];
+
+      return { success: true, user: user || null };
+    } catch (error) {
+      console.error("Erro ao buscar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
+    }
+  }
+
   async getCategories() {
     try {
       const response = await fetch(`${API_BASE_URL}/Categoria`, {
@@ -217,7 +243,6 @@ class API {
   }
 
   // Tasks CRUD
-
   async createTask(taskData) {
     const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
     const currentUser = this.getCurrentUserId();
