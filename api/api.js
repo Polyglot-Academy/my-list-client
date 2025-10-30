@@ -148,7 +148,7 @@ class API {
     }
   }
 
-  async getTasks(filters = {}) {
+  async getTasks() {
     try {
       const response = await fetch(`${API_BASE_URL}/Tarefa`, {
         ...requestHeaders,
@@ -166,17 +166,6 @@ class API {
 
       const currentUserId = this.getCurrentUserId();
       const userTasks = data.filter((c) => c.usuarioId === currentUserId);
-
-      // Filtros
-      // if (filters.categoriaId) {
-      //   userTasks = userTasks.filter(
-      //     (t) => t.categoriaId === Number.parseInt(filters.categoriaId)
-      //   );
-      // }
-
-      // if (filters.status) {
-      //   userTasks = userTasks.filter((t) => t.status === filters.status);
-      // }
 
       return { success: true, tasks: userTasks || [] };
     } catch (error) {

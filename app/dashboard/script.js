@@ -94,17 +94,17 @@ class DashboardPage {
     try {
       window.loading.show();
 
-      const categoryResponse = await this.api.getCategories();
       const taskResponse = await this.api.getTasks();
       const userResponse = await this.api.getUsers();
+      const categoryResponse = await this.api.getCategories();
 
-      this.categories = categoryResponse.categories;
       this.tasks = taskResponse.tasks;
       this.currentUser = userResponse.user;
+      this.categories = categoryResponse.categories;
 
       this.renderCategories();
       this.renderTasks();
-      // this.updateFilters();
+      this.updateFilters();
     } catch (error) {
       alert("Erro ao carregar dados");
     } finally {
@@ -141,15 +141,29 @@ class DashboardPage {
       .join("");
   }
 
-  renderTasks() {
+  renderTasks(filters = {}) {
     const container = document.getElementById("tasksList");
 
-    if (!this.tasks.length > 0) {
+    let filteredTasks = this.tasks;
+
+    if (!!filters.categoriaId) {
+      filteredTasks = filteredTasks.filter(
+        (t) => t.categoriaId === Number.parseInt(filters.categoriaId)
+      );
+    }
+
+    if (!!filters.status) {
+      filteredTasks = filteredTasks.filter(
+        (t) => t.status === Number.parseInt(filters.status)
+      );
+    }
+
+    if (!filteredTasks.length > 0) {
       container.innerHTML = "<p>Nenhuma tarefa encontrada.</p>";
       return;
     }
 
-    container.innerHTML = this.tasks
+    container.innerHTML = filteredTasks
       .map((task) => {
         const category = this.categories.find((c) => c.id === task.categoriaId);
         const isCompleted = task.status === 1;
@@ -206,7 +220,6 @@ class DashboardPage {
       .join("");
   }
 
-  // IN REVIEW
   updateFilters() {
     const categoryFilter = document.getElementById("categoryFilter");
     const taskCategory = document.getElementById("taskCategory");
@@ -228,16 +241,18 @@ class DashboardPage {
     const status = document.getElementById("statusFilter").value;
 
     const filters = {};
-    if (categoryId) filters.categoria_id = categoryId;
+
+    if (categoryId) filters.categoriaId = categoryId;
     if (status) filters.status = status;
 
     try {
-      this.tasks = await this.api.getTasks(filters);
-      this.renderTasks();
+      this.renderTasks(filters);
     } catch (error) {
       alert("Erro ao aplicar filtros");
     }
   }
+
+  // IN REVIEW
 
   // Task Modal
   showTaskModal(task = null) {
