@@ -229,12 +229,10 @@ class API {
         method: "DELETE",
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
         return {
           success: false,
-          message: data.message || "Erro ao excluir tarefa.",
+          message: "Erro ao excluir tarefa.",
         };
       }
 
@@ -329,27 +327,25 @@ class API {
     }
   }
 
-  //IN REVIEW
-
   async deleteCategory(id) {
-    const categories = JSON.parse(
-      localStorage.getItem("mylist_categories") || "[]"
-    );
-    const filteredCategories = categories.filter((c) => c.id !== id);
+    try {
+      const response = await fetch(`${API_BASE_URL}/Categoria/${id}`, {
+        ...requestHeaders,
+        method: "DELETE",
+      });
 
-    // Remove category from tasks
-    const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
-    const updatedTasks = tasks.map((t) =>
-      t.categoria_id === id ? { ...t, categoria_id: null } : t
-    );
+      if (!response.ok) {
+        return {
+          success: false,
+          message: "Erro ao excluir categoria.",
+        };
+      }
 
-    localStorage.setItem(
-      "mylist_categories",
-      JSON.stringify(filteredCategories)
-    );
-    localStorage.setItem("mylist_tasks", JSON.stringify(updatedTasks));
-
-    return { success: true };
+      return { success: true };
+    } catch (error) {
+      console.error("Erro ao buscar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
+    }
   }
 }
 

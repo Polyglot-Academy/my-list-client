@@ -428,8 +428,6 @@ class DashboardPage {
     }
   }
 
-  // IN REVIEW
-
   async deleteCategory(id) {
     if (
       confirm(
@@ -437,14 +435,29 @@ class DashboardPage {
       )
     ) {
       try {
+        window.loading.show();
+
+        const tasksWithCategoryId = this.tasks.filter(
+          (t) => t.categoriaId === id
+        );
+
+        if (tasksWithCategoryId.length > 0) {
+          throw new Error(
+            "Exclua primeiro as tarefas que contém a categoria associada."
+          );
+        }
+
         await this.api.deleteCategory(id);
         await this.loadData();
       } catch (error) {
-        alert("Erro ao excluir categoria");
+        alert(error.message ? error.message : "Erro ao excluir categoria");
+      } finally {
+        window.loading.hide();
       }
     }
   }
 
+  //Utils
   formatDate(param) {
     const date = new Date(param);
     return date.toLocaleDateString("pt-BR", { timeZone: "UTC" });
