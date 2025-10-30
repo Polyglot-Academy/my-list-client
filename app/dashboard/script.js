@@ -252,11 +252,9 @@ class DashboardPage {
     }
   }
 
-  // IN REVIEW
-
-  // Task Modal
   showTaskModal(task = null) {
     this.editingTask = task;
+
     const modal = document.getElementById("taskModal");
     const title = document.getElementById("taskModalTitle");
 
@@ -279,22 +277,61 @@ class DashboardPage {
   fillTaskForm(task) {
     document.getElementById("taskTitle").value = task.titulo;
     document.getElementById("taskDescription").value = task.descricao || "";
-    document.getElementById("taskCategory").value = task.categoria_id || "";
-    document.getElementById("taskDate").value = task.data_vencimento || "";
-    document.getElementById("taskTime").value = task.hora_vencimento || "";
-    document.getElementById("taskStatus").value = task.status;
+    document.getElementById("taskCategory").value = task.categoriaId || "";
+    document.getElementById("taskDate").value =
+      task.dataVencimento.split("T")[0] || "";
+    document.getElementById("taskTime").value = task.horaVencimento
+      ? task.horaVencimento.substring(0, 5) // remove ms
+      : "";
+    document.getElementById("taskStatus").value = `${task.status}`;
+  }
+
+  async editTask(id) {
+    const task = this.tasks.find((t) => t.id === id);
+
+    if (task) {
+      this.showTaskModal(task);
+    }
+  }
+
+  async toggleTaskStatus(id) {
+    const task = this.tasks.find((t) => t.id === id);
+
+    if (!task) return;
+
+    const newStatus = task.status === 0 ? 1 : 0;
+
+    try {
+      window.loading.show();
+
+      await this.api.updateTask(id, { ...task, status: newStatus });
+      await this.loadData();
+    } catch (error) {
+      alert("Erro ao atualizar status da tarefa");
+    } finally {
+      window.loading.hide();
+    }
   }
 
   async handleTaskSubmit(e) {
     e.preventDefault();
 
+    const hora_vencimento = document.getElementById("taskTime").value + ":00";
+
     const taskData = {
       titulo: document.getElementById("taskTitle").value,
       descricao: document.getElementById("taskDescription").value,
-      categoria_id: document.getElementById("taskCategory").value,
-      data_vencimento: document.getElementById("taskDate").value,
-      hora_vencimento: document.getElementById("taskTime").value,
-      status: document.getElementById("taskStatus").value,
+      categoriaId: document.getElementById("taskCategory").value,
+      dataVencimento:
+        document.getElementById("taskDate").value +
+        "T" +
+        hora_vencimento +
+        ".00000Z",
+      horaVencimento: hora_vencimento,
+      status: Number.parseInt(document.getElementById("taskStatus").value),
+      criadoEm: this.editingTask
+        ? this.editingTask.criadoEm
+        : new Date().toISOString(),
     };
 
     try {
@@ -311,13 +348,9 @@ class DashboardPage {
     }
   }
 
-  async editTask(id) {
-    const task = this.tasks.find((t) => t.id === id);
-    if (task) {
-      this.showTaskModal(task);
-    }
-  }
+  // IN REVIEW
 
+  // Task Modal
   async deleteTask(id) {
     if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
       try {
@@ -325,19 +358,6 @@ class DashboardPage {
         await this.loadData();
       } catch (error) {
         alert("Erro ao excluir tarefa");
-      }
-    }
-  }
-
-  async toggleTaskStatus(id) {
-    const task = this.tasks.find((t) => t.id === id);
-    if (task) {
-      const newStatus = task.status === "pendente" ? "concluida" : "pendente";
-      try {
-        await this.api.updateTask(id, { status: newStatus });
-        await this.loadData();
-      } catch (error) {
-        alert("Erro ao atualizar status da tarefa");
       }
     }
   }
@@ -407,9 +427,9 @@ class DashboardPage {
     }
   }
 
-  formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("pt-BR");
+  formatDate(param) {
+    const date = new Date(param);
+    return date.toLocaleDateString("pt-BR", { timeZone: "UTC" });
   }
 }
 

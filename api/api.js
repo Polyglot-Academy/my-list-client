@@ -12,37 +12,9 @@ const requestHeaders = {
 class API {
   constructor() {}
 
+  // Auth
   isAuthenticated() {
     return !!localStorage.getItem("mylist_token");
-  }
-
-  async register(userData) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/Usuario`, {
-        ...requestHeaders,
-        method: "POST",
-        body: JSON.stringify({
-          nome: userData.nome,
-          email: userData.email,
-          senha: userData.senha,
-          criadoEm: new Date().toISOString(),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return {
-          success: false,
-          message: data.message || "Erro ao cadastrar usuário",
-        };
-      }
-
-      return { success: true, user: data.user || data };
-    } catch (error) {
-      console.error("Erro ao registrar:", error);
-      return { success: false, message: "Erro ao conectar com o servidor" };
-    }
   }
 
   async login(email, password) {
@@ -90,6 +62,36 @@ class API {
     return { success: true };
   }
 
+  async register(userData) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/Usuario`, {
+        ...requestHeaders,
+        method: "POST",
+        body: JSON.stringify({
+          nome: userData.nome,
+          email: userData.email,
+          senha: userData.senha,
+          criadoEm: new Date().toISOString(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || "Erro ao cadastrar usuário",
+        };
+      }
+
+      return { success: true, user: data.user || data };
+    } catch (error) {
+      console.error("Erro ao registrar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
+    }
+  }
+
+  // Users
   getCurrentUserId() {
     const id = localStorage.getItem("mylist_current_user");
 
@@ -122,6 +124,7 @@ class API {
     }
   }
 
+  // Categories
   async getCategories() {
     try {
       const response = await fetch(`${API_BASE_URL}/Categoria`, {
@@ -148,6 +151,7 @@ class API {
     }
   }
 
+  // Tasks
   async getTasks() {
     try {
       const response = await fetch(`${API_BASE_URL}/Tarefa`, {
@@ -174,9 +178,45 @@ class API {
     }
   }
 
-  //IN REVIEW
+  async updateTask(id, taskData) {
+    try {
+      const userId = this.getCurrentUserId();
 
-  // Categories CRUD
+      const response = await fetch(`${API_BASE_URL}/Tarefa/${id}`, {
+        ...requestHeaders,
+        method: "PUT",
+        body: JSON.stringify({
+          id: id,
+          usuarioId: userId,
+          categoriaId: taskData.categoriaId
+            ? Number.parseInt(taskData.categoriaId)
+            : null,
+          titulo: taskData.titulo,
+          descricao: taskData.descricao,
+          dataVencimento: taskData.dataVencimento,
+          horaVencimento: taskData.horaVencimento,
+          status: taskData.status,
+          criadoEm: taskData.criadoEm,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || "Erro ao atualizar tarefa",
+        };
+      }
+
+      return { success: true, task: data.user || data };
+    } catch (error) {
+      console.error("Erro ao atualizar:", error);
+      return { success: false, message: "Erro ao conectar com o servidor" };
+    }
+  }
+
+  //IN REVIEW
   async createCategory(categoryData) {
     const categories = JSON.parse(
       localStorage.getItem("mylist_categories") || "[]"
@@ -231,7 +271,6 @@ class API {
     return { success: true };
   }
 
-  // Tasks CRUD
   async createTask(taskData) {
     const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
     const currentUser = this.getCurrentUserId();
@@ -253,25 +292,6 @@ class API {
     tasks.push(newTask);
     localStorage.setItem("mylist_tasks", JSON.stringify(tasks));
     return { success: true, task: newTask };
-  }
-
-  async updateTask(id, taskData) {
-    const tasks = JSON.parse(localStorage.getItem("mylist_tasks") || "[]");
-    const index = tasks.findIndex((t) => t.id === id);
-
-    if (index !== -1) {
-      tasks[index] = {
-        ...tasks[index],
-        ...taskData,
-        categoria_id: taskData.categoria_id
-          ? Number.parseInt(taskData.categoria_id)
-          : null,
-      };
-      localStorage.setItem("mylist_tasks", JSON.stringify(tasks));
-      return { success: true, task: tasks[index] };
-    }
-
-    return { success: false, message: "Tarefa não encontrada" };
   }
 
   async deleteTask(id) {
